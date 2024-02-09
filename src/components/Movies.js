@@ -107,7 +107,7 @@ export const Movies = () => {
               <td>{movie.release_year}</td>
             </tr>
           ))}
-          {isSearching && searchResults.length === 0 && <tr><td colSpan="5">No movies found</td></tr>}
+          {isSearching && searchResults.length === 0 && <tr><td colSpan="5">No movies found </td></tr>}
         </tbody>
       </table>
     </div>
