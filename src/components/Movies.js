@@ -1,16 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../App.css";
+import { env } from '../env.js';
+import { apiConfig } from '../apiConfig.js';
 
-
-
-export const Movies = ({ movies }) => {
+export const Movies = () => {
+  const [movies, setMovies] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
 
+  useEffect(() => {
+    getAllMovies();
+  }, []);
+
+  const getAllMovies = async () => {
+    try {
+      const response = await fetch(`${apiConfig[env].API_URL}/api/movie/all`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${apiConfig[env].bearer_token}`,
+        }
+      });
+
+      const data = await response.json();
+      setMovies(data);
+    } catch (error) {
+      console.error('Error fetching all movies:', error);
+    }
+  };
+
   const handleSearch = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/movie/search?search_text=${searchText}`);
+      const response = await fetch(`${apiConfig[env].API_URL}/api/movie/search?search_text=${searchText}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${apiConfig[env].bearer_token}`,
+        }
+      });
+
       const data = await response.json();
 
       if (data.returnCode === 1) {
@@ -25,24 +52,7 @@ export const Movies = ({ movies }) => {
     }
   };
 
-
-  if (movies.length === 0) return null;
-
-  const MovieRow = (movie, index) => {
-    return (
-      <tr key={index} className={index % 2 === 0 ? "odd" : "even"}>
-        <td>{index + 1}</td>
-        <td>{movie.title}</td>
-        <td>{movie.genre}</td>
-        <td>{movie.director}</td>
-        <td>{movie.release_year}</td>
-      </tr>
-    );
-  };
-
-  const movieTable = isSearching ?
-    searchResults.map((movie, index) => MovieRow(movie, index)) :
-    movies.map((movie, index) => MovieRow(movie, index));
+  const movieData = isSearching ? searchResults : movies;
 
   return (
     <div className="container">
@@ -88,7 +98,15 @@ export const Movies = ({ movies }) => {
           </tr>
         </thead>
         <tbody>
-          {movieTable}
+          {movieData && movieData.map((movie, index) => (
+            <tr key={index} className={index % 2 === 0 ? "odd" : "even"}>
+              <td>{index + 1}</td>
+              <td>{movie.title}</td>
+              <td>{movie.genre}</td>
+              <td>{movie.director}</td>
+              <td>{movie.release_year}</td>
+            </tr>
+          ))}
           {isSearching && searchResults.length === 0 && <tr><td colSpan="5">No movies found</td></tr>}
         </tbody>
       </table>
