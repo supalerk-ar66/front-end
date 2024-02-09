@@ -4,8 +4,6 @@
 /node_modules
 package-lock.json
 
-/src/env.js
-/src/apiConfig.js
 
 /.pnp
 .pnp.js
